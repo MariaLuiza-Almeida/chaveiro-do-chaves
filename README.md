@@ -6,6 +6,7 @@ Breve descrição do projeto e seu propósito.
 
 - [Requisitos](#requisitos)
 - [Get Started](#get-started)
+- [Defina Suas Entidades](#defina-suas-entidades)
 
 
 ## Requisitos
@@ -107,3 +108,41 @@ seu projeto roda.
 Tudo certo para começar a codar! Como o Django é um framework web de Python, não
 é necessário criar projetos separados para back/front-end.
 
+## Defina Suas Entidades
+
+Definir as entidades em uma aplicação Django/Python é muito fácil, siga o passo a passo:
+
+###  Crie um arquivo “models.py”
+
+É onde estarão contidas todas as suas classes
+
+### Utilize o django.db
+
+Este é um pacote do django que contem funcionalidades que auxiliam a definição de
+entidades orientadas a banco de dado. Ele traz identificadores como os de primary key,
+foreign key e etc
+
+```
+from django.db import models
+```
+
+### Crie suas classes
+
+Agora é simples, só declarar as classes com seus atributos usando os recursos do
+django.db. Segue um exemplo da classe chave:
+
+`Atributos: id, nome, situação, status`
+
+```
+# Definição da classe
+class Chave(models.Model):
+id = models.IntegerField(primary_key=True) #Declarando um campo inteiro que é chave primária
+nome = models.CharField(min=3) #Nome com mínimo de caracteres
+situacao = models.BooleanField() #Campo booleano que indica se está emprestada ou não
+status = models.BooleanField() #Campo booleano que indica se está disponível para empréstimo
+```
+
+🥸 Agora é só aplicar para as outras entidades. Para saber os tipos de campos disponíveis
+no django.db, acesse:
+
+[DJANGO](https://docs.djangoproject.com/en/4.2/topics/db/models/)
