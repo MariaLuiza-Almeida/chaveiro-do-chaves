@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-# chaveiro-do-chaves
-=======
 # Chaveiro do Chaves 🔑
 
 Breve descrição do projeto e seu propósito.
@@ -109,4 +106,4 @@ seu projeto roda.
 
 Tudo certo para começar a codar! Como o Django é um framework web de Python, não
 é necessário criar projetos separados para back/front-end.
->>>>>>> Stashed changes
+
