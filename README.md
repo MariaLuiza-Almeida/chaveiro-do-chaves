@@ -146,3 +146,152 @@ status = models.BooleanField() #Campo booleano que indica se está disponível p
 no django.db, acesse:
 
 [DJANGO](https://docs.djangoproject.com/en/4.2/topics/db/models/)
+
+PARTE 4
+Crie um documento descrevendo como criar o BD do seu sistema para armazenar os dados das entidades do sistema (Chave, Servidor, Emprestimo) usando as tecnologias do seu grupo.
+
+1- PASSO 
+CONECTAR O BANCO DE DADOS 
+
+Instalar o pacote python para banco de dados
+
+pip install mysql-connector-python
+
+Utilize a biblioteca mysql.connector:
+
+import mysql.connector db = mysql.connector.connect( host=”localhost”, user=”your_username”, password=”your_password”, database=”your_database”)
+
+
+2- PASSO
+Executar os seguintes comandos: 
+
+python manage.py makemigrations
+
+Esse comando irá gerar arquivos de migração com base nas classes de modelo já criadas
+
+
+python manage.py migrate
+
+Esse comando irá aplicar essas migrações ao banco de dados e criar as tabelas.
+
+PARTE 5
+Crie um documento descrevendo como criar a funcionalidade "listar chaves disponíveis" incluindo o frontend e o backend usando as tecnologias do seu grupo.
+
+
+1- PASSO
+Definir VIEW para listar chaves disponíveis: 
+
+# views.py
+
+from django.shortcuts import render
+from .models import Chave
+
+def listar_chaves_disponiveis(request):
+    chaves_disponiveis = Chave.objects.filter(situacao=False)  # Filtra as chaves que não estão emprestadas
+    return render(request, 'emprestimos_chaves/listar_chaves_disponiveis.html', {'chaves_disponiveis': chaves_disponiveis})
+
+2- PASSO
+Configurar a URL
+
+# urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # ... outras URLs
+    path('chaves/disponiveis/', views.listar_chaves_disponiveis, name='listar_chaves_disponiveis'),
+]
+
+3- PASSO
+Criar um arquivo html 
+
+Exemplo:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chaves Disponíveis</title>
+</head>
+<body>
+    <h1>Chaves Disponíveis</h1>
+    <ul>
+        {% for chave in chaves_disponiveis %}
+            <li>{{ chave.nome }}</li>
+        {% empty %}
+            <li>Nenhuma chave disponível no momento.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+PARTE 6
+
+1- PASSO
+Definir a view para adicionar uma nova chave:
+
+ # views.py
+
+from django.shortcuts import render, redirect
+from .models import Chave
+from .forms import ChaveForm
+
+def adicionar_chave(request):
+    if request.method == 'POST':
+        form = ChaveForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_chaves_disponiveis')
+    else:
+        form = ChaveForm()
+    return render(request, 'emprestimos_chaves/adicionar_chave.html', {'form': form})
+
+
+
+2- PASSO
+Criar um formulário para adicionar as novas chaves:
+
+# forms.py
+
+from django import forms
+from .models import Chave
+
+class ChaveForm(forms.ModelForm):
+    class Meta:
+        model = Chave
+        fields = ['nome', 'situacao', 'status']
+
+3- PASSO
+Configurar a URL para acessar a visualização de adicionar a nova chave:
+
+# urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # ... outras URLs
+    path('chaves/adicionar/', views.adicionar_chave, name='adicionar_chave'),
+]
+
+
+4- PASSO
+Criar uma página html que irá aparecer o formulário para adicionar uma nova chave:
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adicionar Chave</title>
+</head>
+<body>
+    <h1>Adicionar Nova Chave</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar</button>
+    </form>
+</body>
+</html>
+
+
+
