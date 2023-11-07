@@ -120,9 +120,9 @@ INSTALLED_APPS = [
 ```
 ## Crie sua primeira aplicação
 ```
-python manage.py startapp listarChaves
+python manage.py startapp crud
 ```
-Esse comando irá criar uma nova pasta com arquivos como models, views, url, admin e nela vamos criar nossa primeira aplicação que irá nos levar a uma página que vai listar todas as chaves listadas.
+Esse comando irá criar uma nova pasta com arquivos como models, views, url, admin e nela vamos criar nossa primeira aplicação que irá nos levar a uma página que vai listar todas as chaves listadas. Lembre-se de colocar o nome da aplicação no "INSTALLED_APPS".
 
 ## Defina Suas Entidades
 
@@ -147,7 +147,7 @@ from django.db import models
 Agora é simples, só declarar as classes com seus atributos usando os recursos do
 django.db.
 
-Aqui está o código models.py que estará dentro da aplicação listarChaves:
+Aqui está o código models.py que estará dentro da aplicação:
 
 ```
 from django.db import models
@@ -155,9 +155,9 @@ from django.db import models
 # Definição da classe
 class Chave(models.Model):
     id = models.AutoField(primary_key=True)  # Usando AutoField para a chave primária
-    nome = models.CharField(max_length=255)  # Defina o valor máximo apropriado para o comprimento do nome
-    situacao = models.BooleanField()  # Campo booleano que indica se está emprestada ou não
-    status = models.BooleanField()  # Campo booleano que indica se está disponível para empréstimo
+    nome = models.CharField(max_length=255, unique=True)  # Defina o valor máximo apropriado para o comprimento do nome
+    situacao = models.BooleanField(default=True)  # Campo booleano que indica se está emprestada ou não
+    status = models.BooleanField(default=True) # Campo booleano que indica se está disponível para empréstimo
     def __str__(self):
         return self.nome
     
@@ -174,7 +174,7 @@ class Emprestimo(models.Model):
     dataHoraDevolucao = models.DateTimeField()
     chave = models.ForeignKey(Chave, on_delete=models.CASCADE)  # Adicione o argumento on_delete
     servidorRetirou = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_retirados')  # Adicione o argumento on_delete
-    servidorDevolveu = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_devolvidos')  # Adicione o argumento on_delete   
+    servidorDevolveu = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_devolvidos')  # Adicione o argumento on_delete     
 ```
 
 Após criar o models é necessário registrar suas entidades dentro do arquivo admin.py:
@@ -203,7 +203,7 @@ Esse comando irá aplicar essas migrações ao banco de dados e criar as tabelas
 ### VIEWS
 Agora vamos definir a view para listar as páginas disponíveis:
 
-No arquvio views.py dentro da aplicação listarChaves importe as entidades necessárias do models, nesse caso usaremmos apenas a Chave:
+No arquvio views.py dentro da aplicação CRUD importe as entidades necessárias do models, nesse caso usaremmos apenas a Chave:
 
 ```
 from .models import Chave
@@ -226,7 +226,7 @@ Dentro do urlpatterns adicione o caminho:
 ```
 urlpatterns = [
     # ... outras URLs
-   path('listarChaves/', include('listarChaves.urls')),
+   path('crud/', include('crud.urls')),
 ]
 ```
 Agora entre no urls.py da sua aplicação listarChaves.
@@ -274,7 +274,7 @@ python manage.py runserver
 ```
 Primeiramente entre no:
 ```
-/listarChaves/
+/crud/
 ```
 Se tudo estiver certo irá aparecer a pagina Listar Chaves com o aviso de que não existe nenhuma chave ainda. Agora para testar se a listagem está funcionando:
 
@@ -284,6 +284,60 @@ Abra o
 ```
 Faça o login com o superusuario que foi criado lá em cima. Se tudo estiver correto você vai poder ver o banco de dados e manipular as tabelas, crie algumas chaves e depois volte na página Listar Chaves, agora irá aparecer as chaves que você adicionou na tabela.
 
-## Adicionar chaves
+## Criar chaves
+Agora vamos adicionar a funcionalidade de criar novas chaves, fazendo a validação para não adicionar chaves com nome vazio ou nomes repetidos.
+
+## HTML
+Crie um formulário, é necessário adicionar o action e o method que é post
+```
+<form action="{% url 'salvar' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="nome">
+    <button type="submit">Enviar</button>
+</form>
+```
+## VIEWS
+
+Crie um resquest "salvar" no arquivo views.py, nesse resquest já está incluido as verificações e as mensagens de erro para o nome vazio e para o nome repetido:
+
+```
+def salvar(request):
+    nome = request.POST.get("nome")
+    if nome:
+        if Chave.objects.filter(nome=nome).exists():
+            # Nome já existe, retorne uma mensagem de erro
+            mensagem_erro = "Nome já existe. Escolha um nome diferente."
+        else:
+            Chave.objects.create(nome=nome)
+            mensagem_erro = None
+    else:
+        mensagem_erro = "Nome não pode ser vazio."
+
+    chaves = Chave.objects.all()
+    return render(request, "index.html", {"chaves": chaves, "mensagem_erro": mensagem_erro})
+```
+
+##URLS
+Importe "salvar" da views:
+
+```
+from .views import home, salvar
+```
+Dentro do url patterns adicione um novo path:
+```
+path ('/salvar', salvar, name='salvar')
+
+```
+#MENSAGEM DE ERRO
+Adicione no código html a mensagem de erro para aparecer quando necessário:
+
+```
+{% if mensagem_erro %}
+    <p class="text-danger">{{ mensagem_erro }}</p>
+{% endif %}
+
+```
+
+
 
 
