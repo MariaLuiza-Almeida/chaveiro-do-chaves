@@ -34,29 +34,25 @@ sudo apt install python3-pip;
 pip install Django==4.2.5
 ```
 
-### MySQL
-
-Por fim, vamos instalar o banco de dados (no nosso caso, o MySQL):
-
-```
-sudo apt update
-sudo apt install mysql-server
-sudo systemctl start mysql.service
-```
-
-Após a instalção, configure seu usuário no banco:
+### Ambiente Virtual 
+Para desenvolver seus projetos em django é recomendado utilizar o ambiente virtual da própria ferramenta. Para isso é necessário rodar o comando o para criar ela:
 
 ```
-sudo mysql
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${digite_sua_senha}';
-exit
+python3 -m venv nome_do_ambiente
 ```
-
-Após a instalação, verifique se está tudo certo
+Agora todas as vezes que você começar ou retornar a um projeto lembre-se de ativar o ambiente virutal com o comando:
 
 ```
-systemctl status mysql.service
+source nome_do_ambiente/bin/activate
 ```
+Instale o django dentro do seu ambiente virtual (é necessário instalar ele apenas uma vez):
+```
+pip install django
+```
+
+### Banco de dados
+
+Vamos utilizar o banco de dados que já vem instalado junto com o django, o SQLite.
 
 ## Get Started
 
@@ -104,15 +100,35 @@ python manage.py runserver
 
 😀 Se tudo estiver certo, você terá como resposta do comando acima a porta na qual
 seu projeto roda.
+Você pode criar um superusuario para entrar na pagina admin do servidor usando o comando:
+```
+python manage.py createsuperuser
+```
+
 
 Tudo certo para começar a codar! Como o Django é um framework web de Python, não
 é necessário criar projetos separados para back/front-end.
+
+### Configurar o projeto
+No vscode abra o arquivo setting.py, procure "INSTALLED_APPS" e coloque o nome do arquivo principal. Todas as vezes que você criar uma nova aplicação no seu projeto você deve adicionar o nome nessa lista. Exemplo:
+```
+INSTALLED_APPS = [
+    # ...
+    'chaveiro_do_chaves',
+    # ...
+]
+```
+## Crie sua primeira aplicação
+```
+python manage.py startapp listarChaves
+```
+Esse comando irá criar uma nova pasta com arquivos como models, views, url, admin e nela vamos criar nossa primeira aplicação que irá nos levar a uma página que vai listar todas as chaves listadas.
 
 ## Defina Suas Entidades
 
 Definir as entidades em uma aplicação Django/Python é muito fácil, siga o passo a passo:
 
-###  Crie um arquivo “models.py”
+###  Abra o arquivo “models.py”
 
 É onde estarão contidas todas as suas classes
 
@@ -120,7 +136,7 @@ Definir as entidades em uma aplicação Django/Python é muito fácil, siga o pa
 
 Este é um pacote do django que contem funcionalidades que auxiliam a definição de
 entidades orientadas a banco de dado. Ele traz identificadores como os de primary key,
-foreign key e etc
+foreign key e etc, importe ele no começo do código no vscode:
 
 ```
 from django.db import models
@@ -129,169 +145,145 @@ from django.db import models
 ### Crie suas classes
 
 Agora é simples, só declarar as classes com seus atributos usando os recursos do
-django.db. Segue um exemplo da classe chave:
+django.db.
 
-`Atributos: id, nome, situação, status`
+Aqui está o código models.py que estará dentro da aplicação listarChaves:
 
 ```
+from django.db import models
+
 # Definição da classe
 class Chave(models.Model):
-id = models.IntegerField(primary_key=True) #Declarando um campo inteiro que é chave primária
-nome = models.CharField(min=3) #Nome com mínimo de caracteres
-situacao = models.BooleanField() #Campo booleano que indica se está emprestada ou não
-status = models.BooleanField() #Campo booleano que indica se está disponível para empréstimo
+    id = models.AutoField(primary_key=True)  # Usando AutoField para a chave primária
+    nome = models.CharField(max_length=255)  # Defina o valor máximo apropriado para o comprimento do nome
+    situacao = models.BooleanField()  # Campo booleano que indica se está emprestada ou não
+    status = models.BooleanField()  # Campo booleano que indica se está disponível para empréstimo
+    def __str__(self):
+        return self.nome
+    
+class Servidor(models.Model):
+    id = models.AutoField(primary_key=True)  # Usando AutoField para a chave primária
+    cpf = models.CharField(max_length=11)  # Defina o valor máximo apropriado para o CPF
+    contato = models.CharField(max_length=255)  # Defina o valor máximo apropriado para o contato
+    nascimento = models.DateField()
+    status = models.BooleanField()
+
+class Emprestimo(models.Model):
+    id = models.AutoField(primary_key=True)  # Usando AutoField para a chave primária
+    dataHoraEmprestimo = models.DateTimeField()
+    dataHoraDevolucao = models.DateTimeField()
+    chave = models.ForeignKey(Chave, on_delete=models.CASCADE)  # Adicione o argumento on_delete
+    servidorRetirou = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_retirados')  # Adicione o argumento on_delete
+    servidorDevolveu = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_devolvidos')  # Adicione o argumento on_delete   
 ```
 
-🥸 Agora é só aplicar para as outras entidades. Para saber os tipos de campos disponíveis
-no django.db, acesse:
-
-[DJANGO](https://docs.djangoproject.com/en/4.2/topics/db/models/)
-
-PARTE 4
-Crie um documento descrevendo como criar o BD do seu sistema para armazenar os dados das entidades do sistema (Chave, Servidor, Emprestimo) usando as tecnologias do seu grupo.
-
-1- PASSO 
-CONECTAR O BANCO DE DADOS 
-
-Instalar o pacote python para banco de dados
-
-pip install mysql-connector-python
-
-Utilize a biblioteca mysql.connector:
-
-import mysql.connector db = mysql.connector.connect( host=”localhost”, user=”your_username”, password=”your_password”, database=”your_database”)
+Após criar o models é necessário registrar suas entidades dentro do arquivo admin.py:
+```
+from .models import Chave, Servidor, Emprestimo
+admin.site.register(Chave)
+admin.site.register(Servidor)
+admin.site.register(Emprestimo)
+```
+Agora é necessário fazer a migração para o banco usando os seguintes comandos:
 
 
-2- PASSO
-Executar os seguintes comandos: 
-
+```
 python manage.py makemigrations
+```
 
 Esse comando irá gerar arquivos de migração com base nas classes de modelo já criadas
 
-
+```
 python manage.py migrate
+```
 
 Esse comando irá aplicar essas migrações ao banco de dados e criar as tabelas.
 
-PARTE 5
-Crie um documento descrevendo como criar a funcionalidade "listar chaves disponíveis" incluindo o frontend e o backend usando as tecnologias do seu grupo.
 
+### VIEWS
+Agora vamos definir a view para listar as páginas disponíveis:
 
-1- PASSO
-Definir VIEW para listar chaves disponíveis: 
+No arquvio views.py dentro da aplicação listarChaves importe as entidades necessárias do models, nesse caso usaremmos apenas a Chave:
 
-# views.py
-
-from django.shortcuts import render
+```
 from .models import Chave
+```
+Crie um request para ir para a página html que será criada:
 
-def listar_chaves_disponiveis(request):
-    chaves_disponiveis = Chave.objects.filter(situacao=False)  # Filtra as chaves que não estão emprestadas
-    return render(request, 'emprestimos_chaves/listar_chaves_disponiveis.html', {'chaves_disponiveis': chaves_disponiveis})
+```
+def home(request):
+    chaves = Chave.objects.all()
+    return render(request, "index.html", {"chaves": chaves})
+```
 
-2- PASSO
-Configurar a URL
-
-# urls.py
-
-from django.urls import path
-from . import views
-
+# URLS
+Primeiramente vamos mexer no arquivo urls.py do projeto principal.
+Faça a importação do include:
+```
+from django.urls import path, include
+```
+Dentro do urlpatterns adicione o caminho:
+```
 urlpatterns = [
     # ... outras URLs
-    path('chaves/disponiveis/', views.listar_chaves_disponiveis, name='listar_chaves_disponiveis'),
+   path('listarChaves/', include('listarChaves.urls')),
 ]
+```
+Agora entre no urls.py da sua aplicação listarChaves.
+Faça a importação da views:
 
-3- PASSO
-Criar um arquivo html 
+```
+from .views import home
+```
+Dentro da urlpatterns adicione o caminho:
+```
+urlpatterns = [
+    # ... outras URLs
+path('', home, name='home'),
+]
+```
 
-Exemplo:
+### Página HTML
+Crie uma pasta para os templates, ela pode ser criada na pasta do projeto principal fora da aplicação.
 
+```
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chaves Disponíveis</title>
+    <meta charset="UTF-8">
+    <title>Listar Chaves</title>
 </head>
 <body>
-    <h1>Chaves Disponíveis</h1>
-    <ul>
-        {% for chave in chaves_disponiveis %}
-            <li>{{ chave.nome }}</li>
-        {% empty %}
-            <li>Nenhuma chave disponível no momento.</li>
-        {% endfor %}
-    </ul>
+<h1>Lista de chaves </h1>
+<u>
+    {% for chave in chaves %} ## comando do python que serve para listar as chaves
+    <li>{{ chave.nome }}</li>
+    {% empty %} ## comando do python para quando a lista estiver vazia
+    <li>Não existe nenhuma chave ainda!</li>
+    {% endfor %}
+</u>
+
 </body>
 </html>
+```
+## TESTE
+Para testar vamos abrir o servidor:
 
-PARTE 6
+```
+python manage.py runserver
+```
+Primeiramente entre no:
+```
+/listarChaves/
+```
+Se tudo estiver certo irá aparecer a pagina Listar Chaves com o aviso de que não existe nenhuma chave ainda. Agora para testar se a listagem está funcionando:
 
-1- PASSO
-Definir a view para adicionar uma nova chave:
+Abra o 
+```
+/admin/
+```
+Faça o login com o superusuario que foi criado lá em cima. Se tudo estiver correto você vai poder ver o banco de dados e manipular as tabelas, crie algumas chaves e depois volte na página Listar Chaves, agora irá aparecer as chaves que você adicionou na tabela.
 
- # views.py
-
-from django.shortcuts import render, redirect
-from .models import Chave
-from .forms import ChaveForm
-
-def adicionar_chave(request):
-    if request.method == 'POST':
-        form = ChaveForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('listar_chaves_disponiveis')
-    else:
-        form = ChaveForm()
-    return render(request, 'emprestimos_chaves/adicionar_chave.html', {'form': form})
-
-
-
-2- PASSO
-Criar um formulário para adicionar as novas chaves:
-
-# forms.py
-
-from django import forms
-from .models import Chave
-
-class ChaveForm(forms.ModelForm):
-    class Meta:
-        model = Chave
-        fields = ['nome', 'situacao', 'status']
-
-3- PASSO
-Configurar a URL para acessar a visualização de adicionar a nova chave:
-
-# urls.py
-
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    # ... outras URLs
-    path('chaves/adicionar/', views.adicionar_chave, name='adicionar_chave'),
-]
-
-
-4- PASSO
-Criar uma página html que irá aparecer o formulário para adicionar uma nova chave:
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Adicionar Chave</title>
-</head>
-<body>
-    <h1>Adicionar Nova Chave</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Salvar</button>
-    </form>
-</body>
-</html>
-
+## Adicionar chaves
 
 
