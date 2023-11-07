@@ -244,7 +244,7 @@ path('', home, name='home'),
 ```
 
 ### Página HTML
-Crie uma pasta para os templates, ela pode ser criada na pasta do projeto principal fora da aplicação.
+Crie uma pasta para os templates dentro da aplicação crud, aqui está um exemplo de código usando ferramentas do python como o "{% for chave in chaves %}" para listar as chaves e o "{% empty %}" para quando a lista estiver vazia.
 
 ```
 <!DOCTYPE html>
@@ -256,9 +256,9 @@ Crie uma pasta para os templates, ela pode ser criada na pasta do projeto princi
 <body>
 <h1>Lista de chaves </h1>
 <u>
-    {% for chave in chaves %} ## comando do python que serve para listar as chaves
+    {% for chave in chaves %} 
     <li>{{ chave.nome }}</li>
-    {% empty %} ## comando do python para quando a lista estiver vazia
+    {% empty %} 
     <li>Não existe nenhuma chave ainda!</li>
     {% endfor %}
 </u>
@@ -290,6 +290,7 @@ Agora vamos adicionar a funcionalidade de criar novas chaves, fazendo a validaç
 ## HTML
 Crie um formulário, é necessário adicionar o action e o method que é post
 ```
+<h2>Adicionar uma nova chave:</h2>
 <form action="{% url 'salvar' %}" method="post">
     {% csrf_token %}
     <input type="text" name="nome">
@@ -305,7 +306,6 @@ def salvar(request):
     nome = request.POST.get("nome")
     if nome:
         if Chave.objects.filter(nome=nome).exists():
-            # Nome já existe, retorne uma mensagem de erro
             mensagem_erro = "Nome já existe. Escolha um nome diferente."
         else:
             Chave.objects.create(nome=nome)
@@ -338,6 +338,6 @@ Adicione no código html a mensagem de erro para aparecer quando necessário:
 
 ```
 
-
+Sua aplicação já está criando novas chaves, adicionando no banco e listando elas no seu template. Agora você já pode estilizar do jeito que você preferir!
 
 
