@@ -3,11 +3,11 @@ from .models import Chave
 
 
 # Create your views here.
-def home(request):
+def getKeys (request):
     chaves = Chave.objects.all()
     return render(request, "index.html", {"chaves": chaves})
 
-def salvar(request):
+def createKey (request):
     nome = request.POST.get("nome")
     if nome:
         if Chave.objects.filter(nome=nome).exists():

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Listar Chaves</title>
+</head>
+<body>
+<div class="container">
+    <div class="listKeys">
+        <h1>Lista de chaves </h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+ 
+    <div class="createKey">
+        <div class="forms">
+            <h2>Criar uma nova chave!</h2>
+            <form action="{% url 'createKey' %}" method="post">
+                {% csrf_token %}
+                <h3>Nome:</h3>
+                <input type="text" name="nome">
+                <button type="submit">Criar!</button>
+            </form>
+        </div>
+        
+        <div class="errorMsg">
+            {% if mensagem_erro %}
+            <p class="text-danger">{{ mensagem_erro }}</p>
+        {% endif %}
+        </div>
+
+    </div>
+</div>
+<style>
+    .text-danger {
+        color:red;
+    }
+    
+</style>
+
+</body>
+</html>

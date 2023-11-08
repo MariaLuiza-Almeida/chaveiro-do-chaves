@@ -35,11 +35,18 @@ pip install Django==4.2.5
 ```
 
 ### Ambiente Virtual 
-Para desenvolver seus projetos em django é recomendado utilizar o ambiente virtual da própria ferramenta. Para isso é necessário rodar o comando o para criar ela:
+Para desenvolver seus projetos em django é recomendado utilizar o ambiente virtual da própria ferramenta. Para isso é necessário rodar o comando para instalar:
+
+```
+sudo pip install virtualenv
+```
+
+Depois disso é necessário criar o ambiente virtual:
 
 ```
 python3 -m venv nome_do_ambiente
 ```
+
 Agora todas as vezes que você começar ou retornar a um projeto lembre-se de ativar o ambiente virutal com o comando:
 
 ```
@@ -211,9 +218,10 @@ from .models import Chave
 Crie um request para ir para a página html que será criada:
 
 ```
-def home(request):
+def getKeys (request):
     chaves = Chave.objects.all()
     return render(request, "index.html", {"chaves": chaves})
+
 ```
 
 # URLS
@@ -229,17 +237,17 @@ urlpatterns = [
    path('crud/', include('crud.urls')),
 ]
 ```
-Agora entre no urls.py da sua aplicação listarChaves.
+Agora entre no urls.py da sua aplicação crud.
 Faça a importação da views:
 
 ```
-from .views import home
+from .views import getKeys
 ```
 Dentro da urlpatterns adicione o caminho:
 ```
 urlpatterns = [
     # ... outras URLs
-path('', home, name='home'),
+path('', getKeys, name='getKeys'),
 ]
 ```
 
@@ -254,14 +262,19 @@ Crie uma pasta para os templates dentro da aplicação crud, aqui está um exemp
     <title>Listar Chaves</title>
 </head>
 <body>
-<h1>Lista de chaves </h1>
-<u>
-    {% for chave in chaves %} 
-    <li>{{ chave.nome }}</li>
-    {% empty %} 
-    <li>Não existe nenhuma chave ainda!</li>
-    {% endfor %}
+<div class="container">
+<div class="listKeys">
+        <h1>Lista de chaves </h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
 </u>
+</div>
 
 </body>
 </html>
@@ -290,19 +303,24 @@ Agora vamos adicionar a funcionalidade de criar novas chaves, fazendo a validaç
 ## HTML
 Crie um formulário, é necessário adicionar o action e o method que é post
 ```
-<h2>Adicionar uma nova chave:</h2>
-<form action="{% url 'salvar' %}" method="post">
-    {% csrf_token %}
-    <input type="text" name="nome">
-    <button type="submit">Enviar</button>
-</form>
+<div class="createKey">
+<h2>Criar uma nova chave!</h2>
+        <div class="forms">
+            <form action="{% url 'createKey' %}" method="post">
+                {% csrf_token %}
+                <h3>Nome:</h3>
+                <input type="text" name="nome">
+                <button type="submit">Criar</button>
+            </form>
+        </div>
+</div>
 ```
 ## VIEWS
 
 Crie um resquest "salvar" no arquivo views.py, nesse resquest já está incluido as verificações e as mensagens de erro para o nome vazio e para o nome repetido:
 
 ```
-def salvar(request):
+def createKey (request):
     nome = request.POST.get("nome")
     if nome:
         if Chave.objects.filter(nome=nome).exists():
@@ -321,20 +339,22 @@ def salvar(request):
 Importe "salvar" da views:
 
 ```
-from .views import home, salvar
+from .views import getKeys, createKey
 ```
 Dentro do url patterns adicione um novo path:
 ```
-path ('/salvar', salvar, name='salvar')
+path('createKey/', createKey, name='createKey')
 
 ```
 #MENSAGEM DE ERRO
-Adicione no código html a mensagem de erro para aparecer quando necessário:
+Adicione no código html a mensagem de erro para aparecer quando necessário dentro da div 'createKey':
 
 ```
-{% if mensagem_erro %}
-    <p class="text-danger">{{ mensagem_erro }}</p>
-{% endif %}
+    <div class="errorMsg">
+            {% if mensagem_erro %}
+            <p class="text-danger">{{ mensagem_erro }}</p>
+            {% endif %}
+    </div>
 
 ```
 
