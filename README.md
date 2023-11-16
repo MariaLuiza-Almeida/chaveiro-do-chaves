@@ -302,40 +302,72 @@ Faça o login com o superusuario que foi criado lá em cima. Se tudo estiver cor
 ## Criar chaves
 Agora vamos adicionar a funcionalidade de criar novas chaves, fazendo a validação para não adicionar chaves com nome vazio ou nomes repetidos.
 
-## HTML
-Crie um formulário, é necessário adicionar o action e o method que é post
+### MENU 
+Para os próximos passos do crud iremos criar um menu que irá nos direcionar para outras paginas, vamos ap
+Adicione no código html 
+
 ```
-<div class="createKey">
-<h2>Criar uma nova chave!</h2>
+</div>
+ 
+    <h1>Emprestimo de chaves</h1>
+    <a href="{% url 'createKey' %}">Criar chave</a>
+    <a>Editar chaves</a>
+    <a>Excluir chaves</a>
+    </div>
+</div>
+```
+
+## HTML
+Crie um novo arquivo html na pasta templates com o nome "createKey" formulário, é necessário adicionar o action e o method que é post
+```
+ <div class="createKey">
         <div class="forms">
+            <h2>Criar uma nova chave!</h2>
             <form action="{% url 'createKey' %}" method="post">
                 {% csrf_token %}
                 <h3>Nome:</h3>
                 <input type="text" name="nome">
-                <button type="submit">Criar</button>
+                <button type="submit">Criar!</button>
             </form>
         </div>
-</div>
+        
+        <div class="errorMsg">
+            {% if mensagem_erro %}
+            <p class="text-danger">{{ mensagem_erro }}</p>
+        {% endif %}
+        </div>
+
 ```
 ## VIEWS
 
 Crie um resquest "createKey" no arquivo views.py, nesse resquest já está incluido as verificações e as mensagens de erro para o nome vazio e para o nome repetido:
 
 ```
-def createKey (request):
-    nome = request.POST.get("nome")
-    if nome:
-        if Chave.objects.filter(nome=nome).exists():
-            mensagem_erro = "Nome já existe. Escolha um nome diferente."
+def createKey(request):
+    if request.method == 'POST':
+        nome = request.POST.get("nome")
+        if nome:
+            if Chave.objects.filter(nome=nome).exists():
+                mensagem_erro = "Nome já existe. Escolha um nome diferente."
+            else:
+                Chave.objects.create(nome=nome)
+                return HttpResponseRedirect(reverse('getKeys'))  # Redireciona para a página de listagem de chaves
         else:
-            Chave.objects.create(nome=nome)
-            mensagem_erro = None
+            mensagem_erro = "Nome não pode ser vazio."
     else:
-        mensagem_erro = "Nome não pode ser vazio."
+        mensagem_erro = None
 
-    chaves = Chave.objects.all()
-    return render(request, "index.html", {"chaves": chaves, "mensagem_erro": mensagem_erro})
+    return render(request, "createKey.html", {"mensagem_erro": mensagem_erro})
 ```
+
+lembre-se de fazer os imports:
+```
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import Chave
+```
+
 
 ##URLS
 Importe "createKey" da views:
@@ -361,5 +393,7 @@ Adicione no código html a mensagem de erro para aparecer quando necessário den
 ```
 
 Sua aplicação já está criando novas chaves, adicionando no banco e listando elas no seu template. Agora você já pode estilizar do jeito que você preferir!
+
+
 
 
