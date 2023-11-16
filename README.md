@@ -351,7 +351,7 @@ def createKey(request):
                 mensagem_erro = "Nome já existe. Escolha um nome diferente."
             else:
                 Chave.objects.create(nome=nome)
-                return HttpResponseRedirect(reverse('getKeys'))  # Redireciona para a página de listagem de chaves
+                return HttpResponseRedirect(reverse('getKeys')) 
         else:
             mensagem_erro = "Nome não pode ser vazio."
     else:
@@ -378,17 +378,6 @@ from .views import getKeys, createKey
 Dentro do url patterns adicione um novo path:
 ```
 path('createKey/', createKey, name='createKey')
-
-```
-#MENSAGEM DE ERRO
-Adicione no código html a mensagem de erro para aparecer quando necessário dentro da div 'createKey':
-
-```
-    <div class="errorMsg">
-            {% if mensagem_erro %}
-            <p class="text-danger">{{ mensagem_erro }}</p>
-            {% endif %}
-    </div>
 
 ```
 
