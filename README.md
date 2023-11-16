@@ -107,17 +107,12 @@ python manage.py runserver
 
 😀 Se tudo estiver certo, você terá como resposta do comando acima a porta na qual
 seu projeto roda.
-Você pode criar um superusuario para entrar na pagina admin do servidor usando o comando:
-```
-python manage.py createsuperuser
-```
-
 
 Tudo certo para começar a codar! Como o Django é um framework web de Python, não
 é necessário criar projetos separados para back/front-end.
 
 ### Configurar o projeto
-No vscode abra o arquivo setting.py, procure "INSTALLED_APPS" e coloque o nome do arquivo principal. Todas as vezes que você criar uma nova aplicação no seu projeto você deve adicionar o nome nessa lista. Exemplo:
+No vscode abra o arquivo setting.py na pasta 'chaveiro_do_chaves', procure "INSTALLED_APPS" e coloque o nome do arquivo principal. Todas as vezes que você criar uma nova aplicação no seu projeto você deve adicionar o nome nessa lista. Exemplo:
 ```
 INSTALLED_APPS = [
     # ...
@@ -135,7 +130,7 @@ Esse comando irá criar uma nova pasta com arquivos como models, views, url, adm
 
 Definir as entidades em uma aplicação Django/Python é muito fácil, siga o passo a passo:
 
-###  Abra o arquivo “models.py”
+###  Abra o arquivo “models.py” da aplicação crud
 
 É onde estarão contidas todas as suas classes
 
@@ -184,7 +179,7 @@ class Emprestimo(models.Model):
     servidorDevolveu = models.ForeignKey(Servidor, on_delete=models.CASCADE, related_name='emprestimos_devolvidos')  # Adicione o argumento on_delete     
 ```
 
-Após criar o models é necessário registrar suas entidades dentro do arquivo admin.py:
+Após criar o models é necessário registrar suas entidades dentro do arquivo admin.py da aplicação crud:
 ```
 from .models import Chave, Servidor, Emprestimo
 admin.site.register(Chave)
@@ -205,6 +200,11 @@ python manage.py migrate
 ```
 
 Esse comando irá aplicar essas migrações ao banco de dados e criar as tabelas.
+
+Agora você pode criar um superusuario para entrar na pagina admin do servidor usando o comando:
+```
+python manage.py createsuperuser
+```
 
 
 ### VIEWS
@@ -237,10 +237,12 @@ urlpatterns = [
    path('crud/', include('crud.urls')),
 ]
 ```
-Agora entre no urls.py da sua aplicação crud.
+Agora entre no urls.py da sua aplicação crud, crie o arquivo se necessário
 Faça a importação da views:
 
 ```
+from django.contrib import admin
+from django.urls import path, include
 from .views import getKeys
 ```
 Dentro da urlpatterns adicione o caminho:
@@ -252,7 +254,7 @@ path('', getKeys, name='getKeys'),
 ```
 
 ### Página HTML
-Crie uma pasta para os templates dentro da aplicação crud, aqui está um exemplo de código usando ferramentas do python como o "{% for chave in chaves %}" para listar as chaves e o "{% empty %}" para quando a lista estiver vazia.
+Crie uma pasta para os templates dentro da aplicação crud e dentro crie um arquivo "index.html", aqui está um exemplo de código usando ferramentas do python como o "{% for chave in chaves %}" para listar as chaves e o "{% empty %}" para quando a lista estiver vazia.
 
 ```
 <!DOCTYPE html>
@@ -317,7 +319,7 @@ Crie um formulário, é necessário adicionar o action e o method que é post
 ```
 ## VIEWS
 
-Crie um resquest "salvar" no arquivo views.py, nesse resquest já está incluido as verificações e as mensagens de erro para o nome vazio e para o nome repetido:
+Crie um resquest "createKey" no arquivo views.py, nesse resquest já está incluido as verificações e as mensagens de erro para o nome vazio e para o nome repetido:
 
 ```
 def createKey (request):
@@ -336,7 +338,7 @@ def createKey (request):
 ```
 
 ##URLS
-Importe "salvar" da views:
+Importe "createKey" da views:
 
 ```
 from .views import getKeys, createKey
