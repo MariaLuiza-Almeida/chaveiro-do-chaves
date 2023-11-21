@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Listar Chaves</title>
+</head>
+<body>
+<div class="container">
+    <div class="listKeys">
+        <h1>Lista de chaves </h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+ 
+
+</div>
+<style>
+    .text-danger {
+        color:red;
+    }
+    
+</style>
+
+</body>
+</html>

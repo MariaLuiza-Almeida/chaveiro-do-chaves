@@ -381,8 +381,275 @@ path('createKey/', createKey, name='createKey')
 
 ```
 
-Sua aplicação já está criando novas chaves, adicionando no banco e listando elas no seu template. Agora você já pode estilizar do jeito que você preferir!
+Sua aplicação já está criando novas chaves, adicionando no banco e listando elas no seu template. 
+
+## MENU
+Vamos agora criar uma página de menu para fazer os outros passos do crud e organizar as funções já criadas. 
+Será necessário criar algumas páginas html dentro da pasta template, e dividir os códigos. 
+
+# getKeys.html
+
+```
+<div class="container">
+    <div class="listKeys">
+        <h1>Lista de chaves </h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+ 
+
+</div>
+<style>
+    .text-danger {
+        color:red;
+    }
+    
+</style>
+```
+
+# createKey.html
+Foi feito uma modificação no código para criar uma nova chave para que exista um botão que retorne para o menu e um aviso quando uma nova chave for criada. 
+```
+<body>
+    <div class="createKey">
+        <div class="forms">
+            <h2>Criar uma nova chave!</h2>
+            <form action="{% url 'createKey' %}" method="post">
+                {% csrf_token %}
+                <h3>Nome:</h3>
+                <input type="text" name="nome">
+                <button type="submit">Criar!</button>
+            </form>
+        </div>
+        
+        <div class="errorMsg">
+            {% if mensagem_erro %}
+                <p class="text-danger">{{ mensagem_erro }}</p>
+            {% endif %}
+            
+            {% if mensagem_sucesso %}
+                <p class="text-success">{{ mensagem_sucesso }}</p>
+            {% endif %}
+        </div>
+
+        <div class="backButton">
+            <a href="{% url 'menu' %}">Voltar para o Menu</a>
+        </div>
+    </div>
+```
+# views createKey
+Como modificamos a função de criar, temos que alterar a views também, já alteramos também a página html relacionada a view:
+
+ ```
+ def createKey(request):
+    nome = request.POST.get("nome")
+    mensagem_erro = None
+    mensagem_sucesso = None
+
+    if request.method == "POST":
+        if nome:
+            if Chave.objects.filter(nome=nome).exists():
+                mensagem_erro = "Nome já existe. Escolha um nome diferente."
+            else:
+                Chave.objects.create(nome=nome)
+                mensagem_sucesso = f"Chave '{nome}' criada com sucesso!"
+                nome = ""  # Limpar o campo de nome após o sucesso
+        else:
+            mensagem_erro = "Nome não pode ser vazio."
+
+    chaves = Chave.objects.all()
+    return render(request, "createKey.html", {"chaves": chaves, "mensagem_erro": mensagem_erro, "mensagem_sucesso": mensagem_sucesso})
+ ```
+# index.html
+A página index.html agora será de fato o menu:
+
+```
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+</head>
+<body>
+    <h1>Menu</h1>
+    <ul>
+        <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
+        <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
+    </ul>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
+```
+# VIEWS 
+Agora é necessário criar um novo views para o menu 
+```
+def menu (request):
+    chaves = Chave.objects.all()
+    return render(request, "index.html", {"chaves": chaves})
+
+```
+E editar o link da view getKeys:
+
+```
+return render(request, "getKeys.html", {"chaves": chaves})
+```
+
+# URLS
+Importe as views na url e crie/editar os caminhos 
+
+```
+from .views import getKeys, createKey, menu
+```
+
+```
+path('', menu, name='menu'),
+path('getKeys/', getKeys, name='getKeys'),
+path('createKey/', createKey, name='createKey'),
+
+```
+
+# Editar e Deletar
+Agora vamos criar as outras funções do crud.
+
+Primeiro crie uma página que irá listar todas as chaves novamente e terá botões para as funções editar e deletar:
+
+# views
+```
+def editKeys(request):
+    chaves = Chave.objects.all()
+    return render(request, "editKeys.html", {"chaves": chaves})
+
+```
+
+# urls
+Importe a nova views:
+
+```
+from .views import getKeys, createKey, menu, editKeys,
+```
+
+Crie o caminho:
+
+```
+path ('editKeys/', editKeys, name='editKeys' ),
+```
+
+# editKeys.html
+Crie uma nova página html com o mesmo nome do que já está referenciado na views:
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Listar Chaves</title>
+</head>
+<body>
+<div class="container">
+    <div class="listKeys">
+        <h1>Lista de chaves </h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            <a href="{% url 'updateKey' chave.id %}"> Editar</a>
+            <a href="{% url 'delete' chave.id %}"> Deletar</a>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+ 
+
+</div>
+<style>
+    .text-danger {
+        color:red;
+    }
+    
+</style>
+```
+
+# Editar
+Para criar a função de update vamos criar duas views, para que quando clicado o botão seja redirecionado para outra página para editar a chave escolhida:
+
+# VIEWS
+
+```
+def updateKey (request, id):
+    chaves = Chave.objects.get(id=id)
+    return render (request, "update.html", {"chaves": chaves})
+
+def update(request, id):
+    novoNome = request.POST.get("nome")
+    chaves = Chave.objects.get(id=id)
+    chaves.nome = novoNome
+    chaves.save()
+    return redirect (menu)
+
+```
+
+# URLS
+Importe as views:
+
+```
+from .views import getKeys, createKey, menu, editKeys, updateKey, update, delete
+
+```
+
+Crie os caminhos:
+
+```
+path('updateKey/<int:id>', updateKey, name='updateKey'), 
+path('update/<int:id>', update, name='update'),
+```
+
+# update.html
+```
+<body>
+<h1>
+    <form action="{% url 'update' chaves.id %}" method="post">
+        {% csrf_token %}
+        <h3>Nome da Chave:</h3>
+        <input type="text" name="nome">
+        <button type="submit">Criar</button>
+    </form>
+</h1>
+</body>
+```
+
+# Deletar
+Agora vamos fazer o mesmo para a função deletar:
+
+# views
+```
+def delete (request, id):
+    chaves = Chave.objects.get(id=id)
+    chaves.delete()
+    return redirect (menu)
+```
+
+# urls 
+Importar a views:
+
+```
+from .views import getKeys, createKey, menu, editKeys, updateKey, update, delete
+```
+
+Caminho:
+
+```
+path('delete/<int:id>', delete, name='delete'),
+```
 
 
+Agora já terminamos todos os passos do crud, é possível estilizar as páginas para uma experiência melhor!
 
 

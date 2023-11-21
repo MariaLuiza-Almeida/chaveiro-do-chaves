@@ -1,47 +1,20 @@
+<!-- index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Listar Chaves</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
 </head>
 <body>
-<div class="container">
-    <div class="listKeys">
-        <h1>Lista de chaves </h1>
-        <u>
-            {% for chave in chaves %} 
-            <li>{{ chave.nome }}</li>
-            {% empty %} 
-            <li>Não existe nenhuma chave ainda!</li>
-            {% endfor %}
-        </u>
-    </div>
- 
-    <div class="createKey">
-        <div class="forms">
-            <h2>Criar uma nova chave!</h2>
-            <form action="{% url 'createKey' %}" method="post">
-                {% csrf_token %}
-                <h3>Nome:</h3>
-                <input type="text" name="nome">
-                <button type="submit">Criar!</button>
-            </form>
-        </div>
-        
-        <div class="errorMsg">
-            {% if mensagem_erro %}
-            <p class="text-danger">{{ mensagem_erro }}</p>
-        {% endif %}
-        </div>
+    <h1>Menu</h1>
+    <ul>
+        <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
+        <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
+        <li><a href="{% url 'editKeys' %}">Editar Chaves</a></li>
+        <!-- Adicione links para outras operações conforme necessário -->
+    </ul>
 
-    </div>
-</div>
-<style>
-    .text-danger {
-        color:red;
-    }
-    
-</style>
-
+    {% block content %}{% endblock %}
 </body>
 </html>

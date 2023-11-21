@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar uma nova chave</title>
+</head>
+<body>
+    <div class="createKey">
+        <div class="forms">
+            <h2>Criar uma nova chave!</h2>
+            <form action="{% url 'createKey' %}" method="post">
+                {% csrf_token %}
+                <h3>Nome:</h3>
+                <input type="text" name="nome">
+                <button type="submit">Criar!</button>
+            </form>
+        </div>
+        
+        <div class="errorMsg">
+            {% if mensagem_erro %}
+                <p class="text-danger">{{ mensagem_erro }}</p>
+            {% endif %}
+            
+            {% if mensagem_sucesso %}
+                <p class="text-success">{{ mensagem_sucesso }}</p>
+            {% endif %}
+        </div>
+
+        <div class="backButton">
+            <a href="{% url 'menu' %}">Voltar para o Menu</a>
+        </div>
+    </div>
+</body>
+</html>
