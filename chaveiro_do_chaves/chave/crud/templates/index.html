@@ -1,20 +1,13 @@
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
-</head>
-<body>
-    <h1>Menu</h1>
-    <ul>
-        <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
-        <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
-        <li><a href="{% url 'editKeys' %}">Editar Chaves</a></li>
-        <!-- Adicione links para outras operações conforme necessário -->
-    </ul>
+{% extends 'base.html' %} {% block title %}Chaveiro do Chaves | Menu {%endblock %} 
 
-    {% block content %}{% endblock %}
-</body>
-</html>
+{% block content %}
+<section class="container">
+    <h1>Chaveiro do Chaves - Menu</h1>
+    <ul class="spacing">
+      <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
+      <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
+      <li><a href="{% url 'editKeys' %}">Editar Chaves</a></li>
+    </ul>
+</section>
+
+{% endblock %}

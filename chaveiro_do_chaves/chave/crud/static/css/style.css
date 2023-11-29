@@ -1,0 +1,28 @@
+body{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    justify-content: center;
+}
+
+.container h1{
+    font-size: 32px;
+    text-align: center;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+}
+
+
+.spacing{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
