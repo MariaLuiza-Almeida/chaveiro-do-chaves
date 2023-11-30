@@ -622,4 +622,416 @@ path('delete/<int:id>', delete, name='delete'),
 
 Agora já terminamos todos os passos do crud, é possível estilizar as páginas para uma experiência melhor!
 
+## Tamplates e Funcionalidades Adicionais
 
+Finalmente chegamos na parte final e podemos deixar nossa aplicação mais bonita e funcional. Para isso, vamos explorar o conceito de tamplates
+
+1. Dentro de crud → templates crie o arquivo base.html. Esse será o arquivo que todas nossas páginas usarão como base. Acompanhe a montagem dele:
+
+```
+//1. Adicionamos a tag responsável por carregar os estáticos associados a página, como css e js.
+{% load static %}
+
+//2. Em seguida, adicionamos a estrutura básica de um HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+<body>
+</body>
+</html>
+
+//3. Agora, adicionaremos blocos, que são os responsáveis por conseguirmos personalizar esse tamplate e torná-lo utilizável por toda nossa aplicação. A primeira coisa costumizável nele será a tag title. Ela deve ser incluída ao head.
+
+<title>{% block title %}{% endblock %}</title>
+
+//4. Ao final, teremos dentro do body o nosso content, que será responsável por receber nosso heading (h1 da página) e todo o restante do contéudo.
+
+<div>
+    {% block content %}
+        {% block heading %}
+        {% endblock %}
+    {% endblock %}
+</div>
+
+//5. Como resultado, teremos o seguinte:
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+    <div>
+      {% block content %} {% block heading %} {% endblock %} {% endblock %}
+    </div>
+  </body>
+</html>
+```
+## Estilizando
+
+Para que nossa aplicação tenha uma aparência melhor, adicionaremos alguns estilos globalmente. Como? Usando o nosso tamplate base, já que adicionando estilos a ele, conseguimos adicionar em tudo que utilizar o mesmo. Como o nosso foco não é aprender CSS, disponibilizaremos a folhas de estilo:
+
+Dentro de crud → static, crie as seguintes folhas de estilo: style.css && reset.css
+
+style.css 
+
+```
+body{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container{
+    display: flex;
+    gap: 24px;
+    flex-direction: column;
+    justify-content: center;
+    width: 100vw;
+    align-items: center;
+}
+
+.container h1{
+    font-size: 32px;
+    text-align: center;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container h2{
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container p, a{
+    font-family: 'Poppins', sans-serif;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.spacing{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+```
+
+reset.css
+
+```
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+```
+
+Com isso tudo certo, podemos adicionar esses estilos no head do nosso base.html. Além desses, adicionaremos uma fonte bonitinha do Google 😎
+
+```
+<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+<link rel="stylesheet" href="{% static 'css/reset.css' %}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+/>
+```
+
+## Criando uma tela com o tamplate
+
+Adicionaremos uma feature na nossa aplicação de buscar chaves pelo nome. Para isso, dentro da pasta tamplates, criaremos um html para ela. Chame como preferir, aqui chamaremos de getKeysByName.html. A primeira coisa que faremos nessa tela é extender o base.html e atribuir as variáveis:
+
+```
+{% extends 'base.html' %} {% block title %}Buscar chave pelo nome | Chaveiro do Chaves{%endblock %} 
+
+
+{% block content %}
+
+<section class="container">
+    <h1>
+    {% block heading %}Buscar chave pelo nome{%endblock %}
+    </h1>
+
+     <p>Por enquanto é só!</p>
+</section>
+
+{% endblock %}
+```
+
+Para visualizar nossa página, precisamos adicionar ela nas nossas views e urls, como já fizemos anteriormente. 
+
+No arquivo views.py, defina:
+
+```
+def getKeysByName(request):
+    return render(request, "getKeysByName.html")
+```
+
+E no arquivo urls, adicione: 
+
+```
+path('getKeysByName/', getKeysByName, name='getKeysByName'),
+```
+
+Agora, acessando /crud/getKeysByName/ tudo já deve estar funcionando.
+
+## Criando a funcionalidade de buscar por nome
+
+O nosso método de buscar a chave por nome é tranquilo, bem parecido com o que á fizemos! Acompanhe a sua implementação
+
+```
+def getKeysByName(request):
+    # Defina o key name, que é o que será passado para o método através de um formulário.
+    keyName = request.GET.get("keyName")
+
+    # Defina chave, que será responsável por receber o retorno da busca pela chave
+    chave = None
+    
+    # Faremos um try/except caso keyName tenha valores. Ou seja, caso não seja o first render da página
+    if keyName:
+            try:
+                # Buscamos a key pelo nome e retornamos para o nossa página
+                chave = Chave.objects.get(nome=keyName)
+                return render(request, "getKeysByName.html", {"chave": chave})
+                # Caso haja uma exceção, renderizamos nossa página com a cahve nula
+            except Chave.DoesNotExist:
+                return render(request, "getKeysByName.html", {"chave": chave})
+                # O mesmo acontece com o default
+    return render(request, "getKeysByName.html", {"chave": chave})
+```
+
+Agora, precisamos preparar o nosso html para receber tudo isso 🙂
+
+O core do funcionamento da nossa página é o formulário, onde teremos o seguinte:
+
+getKeysByName.html
+
+```
+{% comment %} O formulário com a action que chama o método que acabamos de definir na nossa view. Além disso, ele tem o método get {% endcomment %}
+<form action="{% url 'getKeysByName' %}" method="get">
+            {% csrf_token %}
+            <label>Nome:</h3>
+{% comment %} Um input que espera exatamente o nome que definimos na view {% endcomment %}
+            <input type="text" name="keyName">
+            <button type="submit">Buscar</button>
+        </form>
+```
+
+Dessa forma, nossa página já funciona… Só não parece! Vamos adicionar uma exibição condicional, para que, caso haja uma chave com aquele nome, ele me mostre:
+
+```
+{% if chave is not None %}
+        <div>
+            <h2>Dados da chave:</h2>
+            <p>ID: {{chave.id}}</p>
+            <p>Nome: {{chave.nome}}</p>
+            <p>Emprestada: {{chave.situacao}}</p>
+            <p>Deletada: {{chave.status}}</p>
+        </div>
+         {% else %}
+            <p>Poxa, que pena! Não há chaves com esse nome. <a href="/crud/createKey/">Crie uma aqui.</a></p>
+        {% endif %}
+```
+
+Tudo pronto, já temos a funcionalidade de buscar uma chave por nome :).
+
+## Ajuste finais
+
+Agora que já temos um tamplate, por que não usá-lo? Vamos adicioná-lo nas páginas já existentes:
+
+index.js
+
+```
+{% extends 'base.html' %} {% block title %}Chaveiro do Chaves | Menu {%endblock %} 
+
+{% block content %}
+<section class="container">
+    <h1>{%block heading%}Chaveiro do Chaves - Menu{%endblock%}</h1>
+    <ul class="spacing">
+      <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
+      <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
+      <li><a href="{% url 'editKeys' %}">Editar Chaves</a></li>
+      <li><a href="{% url 'getKeysByName' %}">Buscar chave pelo nome</a></li>
+    </ul>
+</section>
+{% endblock %}
+
+```
+
+getKeys.html
+
+```
+{% extends 'base.html' %} {% block title %}Buscar todas as chaves | Chaveiro do Chaves{%endblock %} 
+
+{%block content%}
+
+<div class="container">
+    <div class="listKeys">
+        <h1>{%block heading%}Listar todas as chaves{%endblock%}</h1>
+        <u>
+            {% for chave in chaves %} 
+
+            {% if chave.status == 1%}
+            <li>{{ chave.nome }}</li>
+            {%endif %}
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+{%endblock%}
+
+```
+
+createKeys.html
+
+```
+{% extends 'base.html' %} {% block title %}Criar chave | Chaveiro do Chaves{%endblock %} 
+
+{%block content%}
+
+<div class="container">
+    <div class="forms">
+        <h1>{%block heading%}Criar uma nova chave{%endblock%}</h1>
+        <form action="{% url 'createKey' %}" method="post">
+            {% csrf_token %}
+            <h3>Nome:</h3>
+            <input type="text" name="nome">
+            <button type="submit">Criar!</button>
+        </form>
+    </div>
+    
+    <div class="errorMsg">
+        {% if mensagem_erro %}
+            <p class="text-danger">{{ mensagem_erro }}</p>
+        {% endif %}
+        
+        {% if mensagem_sucesso %}
+            <p class="text-success">{{ mensagem_sucesso }}</p>
+        {% endif %}
+    </div>
+
+    <div class="backButton">
+        <a href="{% url 'menu' %}">Voltar para o Menu</a>
+    </div>
+</div>
+{%endblock%}
+
+```
+
+editKeys.html
+
+```
+{% extends 'base.html' %} {% block title %}Editar ou deletar chave | Chaveiro do Chaves{%endblock %} 
+
+{%block content%}
+
+<div class="container">
+    <div class="listKeys">
+        <h1>{%block heading%}Editar ou Deletar{%endblock%}</h1>
+        <u>
+            {% for chave in chaves %} 
+            <li>{{ chave.nome }}</li>
+            <a href="{% url 'updateKey' chave.id %}"> Editar</a>
+            <a href="{% url 'delete' chave.id %}"> Deletar</a>
+            {% empty %} 
+            <li>Não existe nenhuma chave ainda!</li>
+            {% endfor %}
+        </u>
+    </div>
+</div>
+{%endblock%}
+```
+
+### Pequeno ajuste no método de deletar
+
+Agora, para finalizar, faremos com que as chaves deletadas não sejam de fato excluídas do banco. Para isso, na nossa view de delete, faremos a seguinte modificação: 
+
+```
+def delete (request, id):
+    # buscamos a chave
+    chave = Chave.objects.get(id=id)
+    # setamos o status como 0
+    chave.status = 0
+    # salvamos
+    chave.save()
+    return redirect (menu)
+```
+
+Tudo feito! Essa é nossa aplicação django com python 🥳
