@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404
 from .models import Chave
 
 
@@ -10,6 +11,26 @@ def menu (request):
 def getKeys (request):
     chaves = Chave.objects.all()
     return render(request, "getKeys.html", {"chaves": chaves})
+
+def getKeysByName(request):
+    # Defina o key name, que é o que será passado para o método através de um formulário.
+    keyName = request.GET.get("keyName")
+
+    # Defina chave, que será responsável por receber o retorno da busca pela chave
+    chave = None
+    
+    # Faremos um try/except caso keyName tenha valores. Ou seja, caso não seja o first render da página
+    if keyName:
+            try:
+                # Buscamos a key pelo nome e retornamos para o nossa página
+                chave = Chave.objects.get(nome=keyName)
+                return render(request, "getKeysByName.html", {"chave": chave})
+                # Caso haja uma exceção, renderizamos nossa página com a cahve nula
+            except Chave.DoesNotExist:
+                return render(request, "getKeysByName.html", {"chave": chave})
+                # O mesmo acontece com o default
+    return render(request, "getKeysByName.html", {"chave": chave})
+
 
 def createKey(request):
     nome = request.POST.get("nome")
@@ -46,6 +67,10 @@ def update(request, id):
     return redirect (menu)
 
 def delete (request, id):
-    chaves = Chave.objects.get(id=id)
-    chaves.delete()
+    # buscamos a chave
+    chave = Chave.objects.get(id=id)
+    # setamos o status como 0
+    chave.status = 0
+    # salvamos
+    chave.save()
     return redirect (menu)

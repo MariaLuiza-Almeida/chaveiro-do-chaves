@@ -1,29 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Listar Chaves</title>
-</head>
-<body>
+{% extends 'base.html' %} {% block title %}Editar ou deletar chave | Chaveiro do Chaves{%endblock %} 
+
+{%block content%}
+
 <div class="container">
     <div class="listKeys">
-        <h1>Lista de chaves </h1>
+        <h1>{%block heading%}Editar ou Deletar{%endblock%}</h1>
         <u>
             {% for chave in chaves %} 
+
+            {%if chave.status == 1%}
+            
             <li>{{ chave.nome }}</li>
             <a href="{% url 'updateKey' chave.id %}"> Editar</a>
             <a href="{% url 'delete' chave.id %}"> Deletar</a>
+            {%endif%}
+
             {% empty %} 
             <li>Não existe nenhuma chave ainda!</li>
             {% endfor %}
         </u>
     </div>
- 
-
 </div>
-<style>
-    .text-danger {
-        color:red;
-    }
-    
-</style>
+{%endblock%}
+

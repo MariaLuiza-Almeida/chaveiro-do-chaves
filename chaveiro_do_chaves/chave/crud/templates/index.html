@@ -2,12 +2,12 @@
 
 {% block content %}
 <section class="container">
-    <h1>Chaveiro do Chaves - Menu</h1>
+    <h1>{%block heading%}Chaveiro do Chaves - Menu{%endblock%}</h1>
     <ul class="spacing">
       <li><a href="{% url 'getKeys' %}">Listar Chaves</a></li>
       <li><a href="{% url 'createKey' %}">Criar Chave</a></li>
-      <li><a href="{% url 'editKeys' %}">Editar Chaves</a></li>
+      <li><a href="{% url 'editKeys' %}">Editar/Deletar chaves</a></li>
+      <li><a href="{% url 'getKeysByName' %}">Buscar chave pelo nome</a></li>
     </ul>
 </section>
-
 {% endblock %}

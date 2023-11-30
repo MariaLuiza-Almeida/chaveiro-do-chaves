@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% block title %}Buscar chave pelo nome | Chaveiro do Chaves{%endblock %} 
+
+
+{% block content %}
+<section class="container">
+    <h1>
+    {% block heading %}Buscar chave pelo nome{%endblock %}
+    </h1>
+
+    {% comment %} O formulário com a action que chama o método que acabamos de definir na nossa view. Além disso, ele tem o método get {% endcomment %}
+        <form action="{% url 'getKeysByName' %}" method="get">
+            {% csrf_token %}
+            <label>Nome:</h3>
+            {% comment %} Um input que espera exatamente o nome que definimos na view {% endcomment %}
+            <input type="text" name="keyName">
+            <button type="submit">Buscar</button>
+        </form>
+
+        {% if chave is not None %}
+        <div>
+            <h2>Dados da chave:</h2>
+            <p>ID: {{chave.id}}</p>
+            <p>Nome: {{chave.nome}}</p>
+            <p>Emprestada: {{chave.situacao}}</p>
+            <p>Deletada: {{chave.status}}</p>
+        </div>
+         {% else %}
+            <p>Poxa, que pena! Não há chaves com esse nome. <a href="/crud/createKey/">Crie uma aqui.</a></p>
+        {% endif %}
+</section>
+
+{% endblock %}
